@@ -37,7 +37,9 @@ The viewport is 1920×1080 at device scale 1, or `--size WxH`. `--q 'k=v&…'` r
 | `node core/render/readcheck.mjs <demo> [--step 0.04] [--latin-cps 15] [--cjk-cps 4.5] [--pad 1.5] [--min 1.5]` | reading-time check (below) |
 | `.venv/bin/python core/render/sheet.py out.jpg img… [--cols 4] [--w 480]` | contact sheet |
 | `.venv/bin/python core/render/srt.py cues.json out.srt` | subtitles from `[{t0, t1, text}]` |
-| `sh core/render/mux.sh video.mp4 mix.wav out.mp4 [fps=24] [grain=2]` | mux and master (below) |
+| `sh core/render/mux.sh video.mp4 mix.wav out.mp4 [fps=24] [grain=2]` | mux and master (below); ends with `probe.py` on the film and warns about anything off spec |
+| `.venv/bin/python core/render/probe.py film.mp4 [--like video.mp4] [--fps 24] [--size 1920x1080] [--dur SEC] [--color full\|bt709]` | ffprobe check of a finished film, one OK / FAIL line per item: one H.264 + one AAC stream, size, constant fps, frame count (= the frame video with `--like`, else duration × fps), 4:2:0 and colour tags, 48 kHz, audio and video the same length, `window.DUR` with `--dur`, moov before mdat. Exit 1 on any FAIL |
+| `.venv/bin/python core/render/probe.py --material take.wav music.mp3 clip.mov …` | what each file the user brings is (container, codec, rate, channels, size, fps, length) and warnings the pipeline cares about: variable frame rate, under 22.05 kHz, more than 2 channels, a container length longer than what decodes (truncated MP3 / FLAC / MP4; a truncated WAV is caught by `mux.sh`). Exit 1 on any warning |
 
 All four page tools take `--size WxH` (default `1920x1080`, even numbers) and `--q 'k=v'`.
 
@@ -88,6 +90,7 @@ The loader is `core/tts/whisper_model.py` (`load_model()`, `transcribe()`, `BEAM
 | render tools | done | page error, missing required file, ffmpeg failure | usage, no `index.html`, `--out` already being written |
 | `readcheck.mjs` | all texts long enough | some too short or never fully visible | could not check (no `TEXTS`) |
 | `mux.sh` | film written | any failure | – |
+| `probe.py` | all checks pass / no warning | a FAIL or a warning | ffprobe cannot read the file |
 | `tts.py`, `srt.py` | done | bad input, missing model, path too long | usage |
 | `tts_zh.py` | done | bad input | network unreachable |
 | `asr_check.py` | all lines pass | mismatches | model failed to load |

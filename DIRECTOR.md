@@ -112,7 +112,7 @@ Render 6–9 key shots with the real drawing code, tiled into one sheet (`core/r
 
 ## 11. Before you deliver
 
-- Run the review loop (TECHNIQUE.md §8): contact sheets, 0.2 s strips of key actions, one full-speed viewing with sound.
+- Run the review loop (TECHNIQUE.md §8): contact sheets, 0.2 s strips of key actions, one full-speed viewing with sound. The spec check `core/render/probe.py` (run by `mux.sh`) must print no FAIL; material the user brought goes through `probe.py --material` before it is used.
 - **Not the demo again.** After the treatment, read `DEMO.md` and compare: structure, opening, signature shot, camera path, score shape, ending. At least four of the six must differ; rethink the ones that match. Before delivery, put your contact sheet next to the demo poster (`styles/<slug>/poster.jpg`) as a last check.
 - Voice: every line transcribes back correctly (speech-to-text check). For Chinese, one misheard character in a short line is normal: listen, and if it is right, let the check expect what the model heard (TECHNIQUE.md §4).
 - Loudness about −14 LUFS; no black frames, no NaN frames; subtitles in sync and not covering key action.

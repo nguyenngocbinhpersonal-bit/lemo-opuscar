@@ -127,7 +127,7 @@ Write an original score from the cue map, in the instruments of the style's soun
 
 1. Contact sheets: a frame every 1–2 s with `still.mjs --range`, tiled with `core/render/sheet.py`. At least two full passes.
 2. Frame strips at 0.2 s for every key action: hand-overs, falls, hits.
-3. On the final file: `ffmpeg -af ebur128` (loudness), `blackdetect` (blank frames), faster-whisper again on the final mix if it has voice (the demos' `final_asr.py` / `check_mix.py` tools all load through `core/tts/whisper_model.py`).
+3. On the final file: `core/render/probe.py film.mp4 --like video.mp4 --dur <DUR>` (spec: streams, size, fps, frame count, colour, 48 kHz, lengths, faststart; `mux.sh` already runs it and warns), `ffmpeg -af ebur128` (loudness), `blackdetect` (blank frames), faster-whisper again on the final mix if it has voice (the demos' `final_asr.py` / `check_mix.py` tools all load through `core/tts/whisper_model.py`).
 4. Watch it once, at full speed, with sound.
 
 ## 9. 3D notes

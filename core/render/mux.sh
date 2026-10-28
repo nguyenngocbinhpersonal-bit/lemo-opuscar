@@ -12,6 +12,7 @@
 #   `ffmpeg … -f wav -` 流式写出的 WAV 头里长度是占位值，解码完整，只是结尾会有三句解封装提示：那是好文件，照常出片（带一句说明）。
 #   看不出来的一种：流式 WAV 恰好截断在采样边界上（头里没有长度可比，解码也没有错）。
 # 音频比画面短：用静音补到画面长度（不会把视频截短）；音频更长：照旧截到画面长度（-shortest）。
+# 出片后用 ffprobe 复核规格（core/render/probe.py：流、尺寸、帧率、帧数与送入的视频一致、像素格式与色彩标签、48 kHz、音画等长、faststart）；不符只警告，仍出片。
 # 色彩：默认与以往完全一致（保持 video.mjs 出的 yuvj420p 全范围 / bt470bg 标签）；LEMO_COLOR=bt709 改成标准 yuv420p 限幅 / bt709（画面色值差 ±3 以内，但会与旧片有细微色差）。
 die() { echo "mux.sh: $*" >&2; exit 1; }
 V="$1"; A="$2"; O="$3"; FPS="${4:-24}"; GR="${5:-2}"
@@ -96,5 +97,12 @@ if [ "$NORM" = 1 ]; then
   OI=$(echo "$R" | awk '$1 == "I:" { print $2 }'); OP=$(echo "$R" | awk '$1 == "Peak:" { print $2 }')
   awk -v i="$OI" -v p="$OP" 'BEGIN { exit !(i + 0 < -15 || i + 0 > -13 || p + 0 > -1) }' \
     && echo "mux.sh: warning: the film missed the target (-14 LUFS, true peak <= -1.2 dB): measured $OI LUFS, peak $OP dB. The mix is probably clipping or has very hot peaks: lower it and tame the peaks, then mux again" >&2
+fi
+# 规格复核：probe.py 逐项打印 OK / FAIL（stderr），不符合只警告，不改退出码
+HERE=$(cd "$(dirname "$0")" && pwd); LIB="$HERE/../.."
+PY="$LIB/.venv/bin/python"; [ -x "$PY" ] || PY="$LIB/.venv/Scripts/python.exe"; [ -x "$PY" ] || PY=$(command -v python3 || command -v python)
+if [ -n "$PY" ]; then
+  PR=$(PYTHONIOENCODING=utf-8 "$PY" "$HERE/probe.py" "$O" --like "$V" --fps "$FPS" --color "${LEMO_COLOR:-full}" 2>&1)     || echo "mux.sh: warning: the film does not match the spec:
+$(echo "$PR" | grep -v '^OK')" >&2
 fi
 exit 0
