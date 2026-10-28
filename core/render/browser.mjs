@@ -2,9 +2,12 @@
 // 想用别的可执行文件：PLAYWRIGHT_CHROME=/path/to/chrome-headless-shell
 // GPU：macOS 显式用 Metal（新版 headless-shell 上 --use-angle=gl 会退回 SwiftShader 软渲染，慢 ~6 倍）；
 //      其它系统不强加后端。LEMO_ANGLE=metal|gl|vulkan|swiftshader… 可覆盖，LEMO_ANGLE=default 表示不传 --use-angle。
+// 双显卡机器（笔记本：核显 + 独显）：Chromium 默认拿核显；LEMO_GPU=high 要独显（--force_high_performance_gpu，2D 画布渲染快约 1.5 倍），
+//      LEMO_GPU=low 要核显（--force_low_power_gpu），不设 = 让系统挑。
 export const EXE = process.env.PLAYWRIGHT_CHROME || undefined;   // undefined = 让 playwright 自己找
 const angle = process.env.LEMO_ANGLE || (process.platform === 'darwin' ? 'metal' : 'default');
-export const ARGS = [...(angle === 'default' ? [] : [`--use-angle=${angle}`]), '--enable-gpu', '--ignore-gpu-blocklist', '--font-render-hinting=none', '--force-color-profile=srgb'];
+const gpu = { high: ['--force_high_performance_gpu'], low: ['--force_low_power_gpu'] }[process.env.LEMO_GPU || ''] || [];
+export const ARGS = [...(angle === 'default' ? [] : [`--use-angle=${angle}`]), ...gpu, '--enable-gpu', '--ignore-gpu-blocklist', '--font-render-hinting=none', '--force-color-profile=srgb'];
 
 // WebGL 走了软渲染就提醒一次（2D 画布的 demo 不受影响；不会让渲染失败）
 let warned = false;

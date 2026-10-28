@@ -1,0 +1,5 @@
+# Upstream skills in this folder: name, repository, commit, commit date (written by tools/skills_sync.sh)
+remotion https://github.com/remotion-dev/remotion 4bf0755 2026-10-27
+hyperframes https://github.com/heygen-com/hyperframes 4f0bdfb 2026-10-28
+pixijs https://github.com/pixijs/pixijs 2e8cacb 2026-10-27
+gl-transitions https://github.com/gl-transitions/gl-transitions 0efa165 2026-10-25

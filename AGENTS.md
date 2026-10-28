@@ -11,6 +11,7 @@ This repository is a library of film styles. Each style has a `styles/<slug>/STY
 | Tool commands and flags | [`core/README.md`](core/README.md) |
 | The user wants to change a style and keep it as their own, or names a style in `~/lemo-my-styles/` | [`MY-STYLES.md`](MY-STYLES.md) |
 | Adding a style to the library (owner only) | [`MAINTAINING.md`](MAINTAINING.md) |
+| Using a third-party engine or tool in a film (Remotion, HyperFrames, PixiJS, Anime.js, Three.js, Matter.js, Rapier, OGL, Tone.js, Chatterbox, FFmpeg …) | one skill per tool, indexed in [`.claude/skills/README.md`](.claude/skills/README.md) |
 
 **Films outside `styles/` are the user's: no LemoLab credit, no watermark.**
 
