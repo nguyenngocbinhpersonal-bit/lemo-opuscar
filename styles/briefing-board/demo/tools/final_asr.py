@@ -5,9 +5,10 @@ compare with the script, line by line (word match after normalising numbers and 
 import json, os, re, subprocess, sys, tempfile, difflib
 DEMO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 film = sys.argv[1]; model = sys.argv[sys.argv.index('--model') + 1] if '--model' in sys.argv else 'base.en'
-from faster_whisper import WhisperModel
+import os as _o, sys as _s; _s.path.insert(0, next((_d for _d in [_o.environ.get('LIB') or '', _o.getcwd()] + [_o.path.abspath(_o.path.join(_o.path.dirname(_o.path.abspath(__file__)), *(['..'] * _k))) for _k in range(1, 6)] if _o.path.isfile(_o.path.join(_d, 'core', 'tts', 'whisper_model.py'))), '.') + '/core/tts')
+from whisper_model import load_model, BEAM   # the library's faster-whisper loader: large-v3 (WHISPER_MODEL) on the GPU when the free VRAM holds it (float16, else int8_float16), else the CPU; beam 10
 tmp = tempfile.mktemp(suffix='.wav'); subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', film, '-ac', '1', '-ar', '16000', tmp], check=True)
-segs, _ = WhisperModel(model, device='cpu', compute_type='int8').transcribe(tmp, word_timestamps=True, language='en'); os.remove(tmp)
+segs, _ = load_model(model).transcribe(tmp, word_timestamps=True, beam_size=BEAM, language='en'); os.remove(tmp)
 words = [(w.start, w.word) for s in segs for w in s.words]
 norm = lambda t: re.sub(r'[^a-z0-9 ]', ' ', re.sub(r'(\d)\s*,\s*(\d)', r'\1\2', t.lower()).replace(',', '')).split()   # '1 ,208' and '1,208' are 1208
 lines = {l['id']: l for l in json.load(open(os.path.join(DEMO, 'audio', 'lines.json')))}

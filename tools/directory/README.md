@@ -45,7 +45,7 @@ The library ships inside the plugin. On first use it is copied to `~/.lemo-opusc
 | Python packages: numpy, scipy, soundfile, soxr, pillow | PyPI | first film | ~150 MB |
 | Voice tier: kokoro-onnx, edge-tts, faster-whisper | PyPI | only for a film with narration | ~200 MB |
 | Kokoro voice model (offline TTS) | this project's [GitHub Releases](https://github.com/lemomo-ai/lemo-opuscar/releases/tag/assets) | only for a film with narration | 354 MB |
-| Whisper model for the speech check | Hugging Face (or the mirror you set in `HF_ENDPOINT`) | first narration check | ~145 MB |
+| Whisper `large-v3` model for the speech check (faster-whisper) | Hugging Face (or the mirror you set in `HF_ENDPOINT`) | first narration check | ~3 GB |
 | numba, for plucked strings | PyPI | only if the score uses them | ~140 MB |
 | Instrument sample libraries (VSCO 2 CE, VCSL, FreePats, Karoryfer, Salamander) | this project's GitHub Releases | only the libraries the score uses | 70–400 MB each |
 | HDRIs for 3D styles (Poly Haven, CC0) | this project's GitHub Releases | only for 3D styles | 12 MB |

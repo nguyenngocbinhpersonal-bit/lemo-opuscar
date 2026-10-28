@@ -30,7 +30,7 @@ done
 # voice: Kokoro (bm_george), speech-to-text check with the small English model, cues from the real durations
 node "$HERE/tools/export.mjs" "$HERE" > /dev/null || true
 "$PY" core/tts/tts.py "$HERE/voice/lines.json" "$HERE/voice/out"
-WHISPER_MODEL=small.en "$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
+"$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
 node "$HERE/tools/export.mjs" "$HERE"                # cues.json; fails on overlap
 
 # picture, events, score + mix, master, subtitles

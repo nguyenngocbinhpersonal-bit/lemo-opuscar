@@ -75,7 +75,7 @@ The demo's end card is written under the title in the same hand (`demo/film.js`,
 
 ## Build notes
 
-1. Write the script as short lines (`demo/lines.json`), synthesize with `core/tts/tts.py` (voice `bm_george`, `lang: en-gb`), check with `demo/tools/asr_check.py` (`WM=medium.en`) → `voices/words.json` word times.
+1. Write the script as short lines (`demo/lines.json`), synthesize with `core/tts/tts.py` (voice `bm_george`, `lang: en-gb`), check with `demo/tools/asr_check.py` (faster-whisper `large-v3`, the library default) → `voices/words.json` word times.
 2. Lay out the board (regions for each idea), then write `demo/film.js`: VO start times, drawings hung on spoken words with `at(id, word)`, pens, camera keys.
 3. `node core/render/events.mjs demo` → `events.json` (every stroke, wipe, magnet, cue anchors).
 4. `music.py` (reads the same events) → `mix.py` (foley generated from events + VO + ducked score).
@@ -90,7 +90,7 @@ The demo's end card is written under the title in the same hand (`demo/film.js`,
 - **Punctuation vanishes**: a font period is a 1 px stroke. Render sub-width strokes as dots.
 - **Labels half-cut by a push-in** look sloppy: a label must be either fully in or fully out of every shot it appears in.
 - **Motion blur with few sub-frames** strobes text. Step ≤ 4 px between sub-frames.
-- **British voice + US phonemes**: Kokoro `bm_george` with `lang: en-us` said "clocks" like "Clarks". Use `en-gb` for British voices; check with `medium.en`.
+- **British voice + US phonemes**: Kokoro `bm_george` with `lang: en-us` said "clocks" like "Clarks". Use `en-gb` for British voices; check with the default `large-v3`.
 - Keep eraser paths off labels you want to keep (it wiped half of "orbit" once).
 
 ## Engine reference

@@ -24,7 +24,7 @@ if [ "$NEED_FONTS" = 1 ]; then node "$HERE/tools/fonts.mjs" "$HERE"; fi
 # voice: Kokoro (af_heart), then a speech-to-text check with the small English model
 node "$HERE/tools/export.mjs" "$HERE" > /dev/null || true
 "$PY" core/tts/tts.py "$HERE/voice/lines.json" "$HERE/voice/out"
-WHISPER_MODEL=small.en "$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
+"$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
 node "$HERE/tools/export.mjs" "$HERE"                # out/cues.json from the real durations; fails on overlap
 
 # picture, events, score + mix, master

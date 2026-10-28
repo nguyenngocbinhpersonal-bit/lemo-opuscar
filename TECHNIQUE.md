@@ -21,12 +21,14 @@ Everything else installs in tiers, from the library root (`$LIB` in skill mode).
 | Command | Adds | Size |
 |---|---|---|
 | `sh plugin/skills/lemo-opuscar/scripts/setup.sh deps` | core: npm packages, headless browser, Python `.venv` (numpy, scipy, soundfile, soxr, pillow): render, synthesize sound, mux | ~350 MB |
-| `… setup.sh deps voice` | Kokoro + model (English, offline), edge-tts (Chinese, online), faster-whisper (voice check) | ~0.55 GB + ~145 MB Whisper model on first check |
+| `… setup.sh deps voice` | Kokoro + model (English, offline), edge-tts (Chinese, online), faster-whisper (voice check) | ~0.55 GB + ~3 GB Whisper `large-v3` model on first check |
 | `… setup.sh deps music` | numba, for plucked strings (`pluck.py`); the sampler itself needs only the core | ~140 MB |
 | `sh tools/fetch.sh instruments <lib>` | a sample library: `freepats`, `karoryfer`, `salamander`, `vcsl`, `vsco2ce` or `all` | 70–400 MB each |
 | `sh tools/fetch.sh hdri` | HDRIs for 3D styles | 12 MB |
 
 Some styles need packages of their own (a LiDAR reader, a slide-scan decoder, a CAD importer); the style's `STYLE.md` lists them. They are packages, not system tools: install them yourself into a private venv or `node_modules` in the project folder, never into `$LIB/.venv`.
+
+The engines and tools a film may add on top (Remotion, HyperFrames, PixiJS, Anime.js, Paper.js, Matter.js, Rapier, Three.js, OGL, tsParticles, glTF Transform, GL Transitions, Tone.js, Chatterbox, faster-whisper, OBS, OpenCut, FFmpeg) each have an agent skill in `.claude/skills/`, indexed in [`.claude/skills/README.md`](.claude/skills/README.md): how to install the tool into the project folder and how to drive it from `window.render(t)` so frames stay deterministic.
 
 A synthesized score needs no big download; `sampler.py` names the library to fetch when an instrument is missing. A pack needs about twice its size free while it unpacks. Downloads come from npm, PyPI, GitHub Releases and Hugging Face (`HF_ENDPOINT` sets a mirror).
 
@@ -98,7 +100,7 @@ A small script (`cuecheck.py`, in `styles/<slug>/demo/tools/` of several demos) 
   - **English**: [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), local, many voices (an unknown `voice` name makes `tts.py` print the full list; `af_` / `am_` are American, `bf_` / `bm_` British; cast the narrator for this film, not the demo's). `core/tts/tts.py lines.json out/` writes one WAV per line and a durations file. Its Chinese voices (`"lang": "cmn"`) work offline but sound plain.
   - **Chinese**: `core/tts/tts_zh.py lines.json out/` uses [edge-tts](https://github.com/rany2/edge-tts) with Microsoft's neural voices (`zh-CN-XiaoxiaoNeural`, `zh-CN-YunxiNeural`…), with the same outputs as `tts.py`, a rate per line and the silence trimmed. **It needs a network connection.**
 - Spell numbers out in the TTS text and write them as digits in the subtitles.
-- **Check every line**: `core/tts/asr_check.py` transcribes each WAV with faster-whisper and compares it with the script (`--lang zh`: character by character); re-generate until it exits 0. A misheard character in a short Chinese line is normal: listen, and if it is right, put what the model heard in the line's `asr` field. It also writes word timestamps for placing lines and subtitles.
+- **Check every line**: `core/tts/asr_check.py` transcribes each WAV with faster-whisper at its highest configuration (`large-v3`, beam 10, on the GPU when it fits, see `core/README.md` for `WHISPER_MODEL` / `WHISPER_DEVICE`) and compares it with the script (`--lang zh`: character by character); re-generate until it exits 0. A misheard character in a short Chinese line is normal: listen, and if it is right, put what the model heard in the line's `asr` field. It also writes word timestamps for placing lines and subtitles.
 - **Before mixing**: TTS has a high peak-to-average ratio. Compress the voice first, then balance by RMS: voice about 10 dB above the music.
 
 ## 5. Music
@@ -125,7 +127,7 @@ Write an original score from the cue map, in the instruments of the style's soun
 
 1. Contact sheets: a frame every 1–2 s with `still.mjs --range`, tiled with `core/render/sheet.py`. At least two full passes.
 2. Frame strips at 0.2 s for every key action: hand-overs, falls, hits.
-3. On the final file: `ffmpeg -af ebur128` (loudness), `blackdetect` (blank frames), whisper again on the final mix if it has voice.
+3. On the final file: `ffmpeg -af ebur128` (loudness), `blackdetect` (blank frames), faster-whisper again on the final mix if it has voice (the demos' `final_asr.py` / `check_mix.py` tools all load through `core/tts/whisper_model.py`).
 4. Watch it once, at full speed, with sound.
 
 ## 9. 3D notes

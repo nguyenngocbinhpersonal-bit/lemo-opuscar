@@ -6,7 +6,7 @@ HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/../../.." && pwd); cd "$RO
 PY=.venv/bin/python; D=styles/whiteboard/demo; OUT=styles/whiteboard
 if [ "$1" = "--vo" ]; then
   $PY core/tts/tts.py $D/lines.json $D/voices                 # Kokoro bm_george, lang en-gb
-  WM=medium.en $PY $D/tools/asr_check.py $D/lines.json $D/voices   # whisper check + word timestamps (words.json)
+  $PY $D/tools/asr_check.py $D/lines.json $D/voices   # whisper check + word timestamps (words.json)
 fi
 node core/render/events.mjs $D                               # every stroke / wipe / magnet → events.json
 $PY $D/tools/cuecheck.py

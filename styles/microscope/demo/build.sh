@@ -34,10 +34,10 @@ if [ "${FETCH:-0}" = "1" ] || [ ! -f "$HERE/fonts/NotoSerifSC-600.woff2" ] || [ 
 fi
 cd "$LIB"
 
-# voice: Kokoro af_heart, speech-to-text check (small.en), then cues from the real durations
+# voice: Kokoro af_heart, speech-to-text check (faster-whisper large-v3), then cues from the real durations
 node "$HERE/tools/export.mjs" "$HERE" > /dev/null
 "$PY" core/tts/tts.py "$HERE/voice/lines.json" "$HERE/voice/out"
-WHISPER_MODEL=small.en "$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
+"$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
 node "$HERE/tools/export.mjs" "$HERE"
 
 # picture, events, score + mix, master, subtitles
@@ -51,7 +51,7 @@ sh core/render/mux.sh "$HERE/out/video.mp4" "$HERE/out/mix.wav" "$FILM/$NAME.mp4
 "$PY" "$HERE/tools/cuecheck.py" "$HERE" | tail -1
 node "$HERE/tools/subcheck.mjs" "$HERE" | tail -1
 node core/render/readcheck.mjs "$HERE" > "$HERE/out/readcheck.txt" && echo "readcheck ok"
-WHISPER_MODEL=small.en "$PY" "$HERE/tools/finalasr.py" "$FILM/$NAME.mp4" "$HERE" | grep -c '^OK' | sed 's/$/ lines heard in the final mix/'
+"$PY" "$HERE/tools/finalasr.py" "$FILM/$NAME.mp4" "$HERE" | grep -c '^OK' | sed 's/$/ lines heard in the final mix/'
 ffmpeg -v info -i "$FILM/$NAME.mp4" -vf blackdetect=d=0.1:pix_th=0.05 -an -f null - 2>&1 | grep -c black_start | sed 's/$/ black stretches/'
 
 # poster (the signature shot) and the gallery style frame

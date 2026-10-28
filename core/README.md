@@ -51,7 +51,7 @@ All four page tools take `--size WxH` (default `1920x1080`, even numbers) and `-
 |---|---|
 | `.venv/bin/python core/tts/tts.py lines.json out_dir` | Kokoro, offline. `lines.json` = `[{id, text, voice?, speed?, lang?}]` (defaults `af_bella`, `0.92`, `en-us`; Chinese: `"lang": "cmn"`, a `zf_*`/`zm_*` voice). Writes `<id>.wav` (24 kHz, trimmed) and `dur.json`. Needs a library path under 160 bytes (espeak-ng); it checks |
 | `.venv/bin/python core/tts/tts_zh.py lines.json out_dir [--voice zh-CN-XiaoxiaoNeural] [--rate +0%] [--pitch +0Hz]` | edge-tts (Microsoft), online; same outputs as `tts.py`. Per line: `voice`, `rate`, `pitch`, `say` (what is spoken when it differs from `text`). Caches in `out_dir/.cache/`. Voices: `.venv/bin/python -m edge_tts --list-voices` |
-| `.venv/bin/python core/tts/asr_check.py lines.json voices_dir [--lang en\|zh\|auto] [--threshold 0.92] [--model base]` | speech-to-text check of every `<id>.wav`; writes `words.json` (word timestamps). English must match word for word (0–999 count the same as their words); Chinese, Japanese, Korean compare by character similarity ≥ `--threshold`. An `asr` field in a line overrides the expected text (names, decimals, times: write it as Whisper does) |
+| `.venv/bin/python core/tts/asr_check.py lines.json voices_dir [--lang en\|zh\|auto] [--threshold 0.92] [--model large-v3]` | speech-to-text check (faster-whisper `large-v3`, beam 10, on the GPU when it can) of every `<id>.wav`; writes `words.json` (word timestamps). English must match word for word (0–999 count the same as their words); Chinese, Japanese, Korean compare by character similarity ≥ `--threshold`. An `asr` field in a line overrides the expected text (names, decimals, times: write it as Whisper does) |
 | `core/audio/sfx.py` | procedural foley and mix helpers: filters, envelopes, `click`, `whoosh`, `thump`, `ding`…, `compress`, `limit`, `add(buf, sound, at, gain, pan)` |
 | `core/audio/sampler.py`, `core/audio/pluck.py` | sampled instruments and plucked-string modelling ([`audio/INSTRUMENTS.md`](audio/INSTRUMENTS.md)). A missing library is named in the error with its `fetch.sh instruments <lib>` command. `credits(names)` writes the CREDITS lines |
 
@@ -72,10 +72,14 @@ All four page tools take `--size WxH` (default `1920x1080`, even numbers) and `-
 | `LEMO_OPUSCAR_HOME` | where `setup.sh` keeps the library (default `~/lemo-opuscar`) |
 | `PLAYWRIGHT_CHROME` | a Chrome / headless-shell executable instead of Playwright's |
 | `LEMO_ANGLE` | WebGL backend (default `metal` on macOS; `default` passes none) |
+| `LEMO_GPU=high` | on a laptop with two GPUs, render on the discrete one (`--force_high_performance_gpu`; canvas renders ≈ 1.5× faster than on the integrated GPU); `low` forces the integrated one |
 | `RENDER_SLOTS` | optional; limits concurrent full renders across processes |
 | `LEMO_COLOR=bt709` | `mux.sh` writes limited-range BT.709 instead of the default full-range output |
-| `WHISPER_MODEL` | Whisper model name or local folder for `asr_check.py` (same as `--model`; default `base.en` for English, `base` otherwise; `small` is more accurate for Chinese) |
+| `WHISPER_MODEL` | faster-whisper model name or local folder for `asr_check.py` and the demo check tools (same as `--model`; default `large-v3` for every language, ≈ 3 GB on first download; a smaller name such as `medium` only for a quick pass) |
+| `WHISPER_DEVICE` | `auto` (default: an NVIDIA GPU when ctranslate2 sees one, else the CPU in int8), `cuda` or `cpu`. On the GPU the loader tries float16, then int8_float16 when the free VRAM does not hold the model (large-v3 on a 4 GB card, ≈ 1 s per line), then the CPU; `WHISPER_COMPUTE` pins one compute type. On Windows the GPU needs `pip install nvidia-cublas-cu12`; a GPU that fails on the first line falls back to the CPU |
 | `HF_ENDPOINT` | Hugging Face mirror for the Whisper download |
+
+The loader is `core/tts/whisper_model.py` (`load_model()`, `transcribe()`, `BEAM`); every speech check in the library goes through it.
 
 ## Exit codes
 

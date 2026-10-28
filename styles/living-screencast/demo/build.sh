@@ -6,7 +6,7 @@ HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/../../.." && pwd); cd "$RO
 PY=.venv/bin/python; D=styles/living-screencast/demo; OUT=styles/living-screencast
 if [ "$1" = "--vo" ]; then
   $PY core/tts/tts.py $D/lines.json $D/voices                        # Kokoro am_michael
-  WM=medium.en $PY $D/tools/asr_check.py $D/lines.json $D/voices     # whisper check + word timestamps
+  $PY $D/tools/asr_check.py $D/lines.json $D/voices     # whisper check + word timestamps
 fi
 node core/render/events.mjs $D                                      # every key, click, jump, pane → events.json
 $PY $D/sound.py                                                     # score + foley + VO → mix.wav

@@ -39,7 +39,7 @@ fi
 node "$HERE/tools/export.mjs" "$HERE" > /dev/null || true
 "$PY" core/tts/tts.py "$HERE/voice/lines.json" "$HERE/voice/out"
 "$PY" -I "$HERE/tools/voicefix.py" "$HERE"
-WHISPER_MODEL=small.en "$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
+"$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
 node "$HERE/tools/export.mjs" "$HERE"                # cues.json from the real durations; fails on overlap
 
 # picture, events, score + mix, master

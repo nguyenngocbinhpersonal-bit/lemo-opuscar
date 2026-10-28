@@ -27,7 +27,7 @@ for l in vcsl freepats vsco2ce; do [ -d "core/audio/instruments/$l" ] || sh tool
 # voice: Kokoro am_michael, speech-to-text check with the small English model; then cues from the real durations
 node "$HERE/tools/export.mjs" "$HERE" > /dev/null || true
 "$PY" core/tts/tts.py "$HERE/voice/lines.json" "$HERE/voice/out"
-WHISPER_MODEL=small.en "$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
+"$PY" core/tts/asr_check.py "$HERE/voice/lines.json" "$HERE/voice/out" --lang en
 node "$HERE/tools/export.mjs" "$HERE"
 
 # picture, events, score + mix, master, subtitles

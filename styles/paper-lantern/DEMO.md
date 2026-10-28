@@ -49,7 +49,7 @@ Motion as built in the demo:
 
 **Voice (demo, Mandarin):** `edge-tts`, voice `zh-CN-XiaoxiaoNeural`, rate `+10%`, pitch `-2Hz` (`demo/tts.py`); per-line `rate` overrides in `script.json` (L01 `+5%`, quoted letters `+2%`, the poem L23 **`-12%`**, closing line `-6%`). Output is trimmed at 2 % of peak (20 ms pre-roll, 120 ms tail) → 48 kHz mono `vo/<id>.wav` + `vo/dur.json`.
 - **Polyphonic characters**: feed TTS a homophone via a `say` field and keep the real text for subtitles: 「相思的"相"」→ `say: 原来，相思的香，是互相的香。` (TTS otherwise reads xiàng).
-- **Proof**: `demo/asr.py` (faster-whisper **medium**, zh) prints OK/DIFF per line; DIFFs that are homophones or numerals (八月十五 → 8月15, 她 → 他) are fine — listen to the rest.
+- **Proof**: `demo/asr.py` (faster-whisper **large-v3**, zh) prints OK/DIFF per line; DIFFs that are homophones or numerals (八月十五 → 8月15, 她 → 他) are fine — listen to the rest.
 - **Word timings**: `demo/words.py <ids…>` → `vo/words.json` (whisper word timestamps). Shots read them via `E.word(id, k)`; **k is a whisper token index, not a character index** (whisper groups 「我们」 as one token) — print the list and count.
 
 **Voice (English, library default):** write `lines.json` with `{id, text, voice, speed}`, run `core/tts/tts.py` (Kokoro, e.g. `bf_emma` / `af_heart`, speed ≈ .9) into `demo/vo/`, then `core/tts/asr_check.py` which writes `vo/dur.json` and a compatible `vo/words.json` (English word indices). Put the same ids/text into `script.json`. See "Switching to English" under Engine reference for the subtitle-split change.
@@ -105,7 +105,7 @@ Rule: **back layers bright + translucent, front layers dark + opaque**. Interior
 - **Near-plane cloud curtain**: compute the closing position so the two curtains' **front edges** touch (`±.035` offset in `s16_mutual.js`), otherwise a slit of the old shot shows through.
 - **Layers bigger than the cavity** poke through the wooden frame in room shots — keep full-bleed sheets ≤ `.558 × .328`.
 - **Grade uniforms were sticky (fixed 2026-09-26)**: v1 of `Pipe.final()` only wrote `lift`/`gain` when a shot's `grade()` returned them, so a shot without them inherited the previous shot's values and the result depended on which frame a render worker started on — the first release (`paper-lantern_v1.mp4`) had visible grade pops at the worker boundaries 60.9 s (S09) and 101.5 s (S16). Now every missing grade key falls back to `GRADE0` (`post.js`: lift `[0, .005, .018]` cool night default, gain `[1.03, 1, .95]`), so renders are identical for any worker count. Night exteriors rely on the defaults; interiors must return their warm `lift` explicitly (S08 was fixed this way).
-- Whisper medium mishears Chinese homophones (八月 → 8月, 她 → 他, 婵娟 → 禅绢); judge DIFFs by ear, not by string match.
+- Whisper mishears Chinese homophones (八月 → 8月, 她 → 他, 婵娟 → 禅绢); judge DIFFs by ear, not by string match.
 - Headless Chrome must run with GPU flags (`--use-angle=gl --enable-gpu --ignore-gpu-blocklist`, `render/browser.mjs`); SwiftShader is ~6× slower.
 
 ## Build notes
@@ -130,7 +130,7 @@ All commands from the repo root (`Lemo-Opuscar/`). Python = `.venv/bin/python`; 
 D=styles/paper-lantern/demo
 # 1. voice (Mandarin demo) — delete vo/<id>.mp3 or set "redo": true to regenerate a line
 python3 $D/tts.py                          # → $D/vo/<id>.wav, $D/vo/dur.json
-.venv/bin/python $D/asr.py                 # OK / DIFF per line (≈1.5 min, whisper medium, CPU)
+.venv/bin/python $D/asr.py                 # OK / DIFF per line (faster-whisper large-v3, GPU when it fits)
 .venv/bin/python $D/words.py L01 L02 … L25 # → $D/vo/words.json (pass ALL ids: it rewrites the file)
 #    English instead: .venv/bin/python core/tts/tts.py $D/lines_en.json $D/vo && .venv/bin/python core/tts/asr_check.py $D/lines_en.json $D/vo
 
